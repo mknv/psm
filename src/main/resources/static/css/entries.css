@@ -1,0 +1,108 @@
+@media screen and (max-width: 800px){
+    #groups-container>*, #groups>*{
+        display: none;
+    }
+
+    .login, .email, .description{
+        display: none;
+    }
+}
+
+@media screen and (min-width: 800px){
+    #groups-container{
+        display: flex;
+    }
+
+    #groups{
+        display: inline;
+    }
+
+    #fields-table input, #fields-table textarea {
+        width: 20em;
+    }
+
+    #password{
+        width: 20em;
+    }
+
+    .login, .email, .description{
+        display: table-cell;
+    }
+}
+
+/*LIST*/
+#find-container{
+    display: flex;
+    align-items: center;
+}
+
+#txtFind{
+    margin-left: 5px;
+}
+
+.wrong-value{
+    color: red;
+}
+
+.expired{
+    background-color: pink;
+}
+
+#groups-container>*{
+    margin-right: 5px;
+}
+
+#groups input{
+    margin-right: 3px;
+    margin-top: 3px;
+}
+
+/*CREATE EDIT*/
+#password-wrapper{
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+}
+
+#password-wrapper>*{
+    display: flex;
+    margin-top: 10px;
+    align-items: center;
+}
+
+#password-type-container>*{
+    margin-right: 5px;
+}
+
+#password-length-container>*{
+    margin-right: 10px;
+}
+
+#password-validity-container{
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#password-validity-container>div{
+    margin-right: 5px;
+    margin-top: 5px;
+}
+
+input[type="number"]{
+    width: 3em;
+}
+
+button{
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-left: 5px;
+    width: 35px;
+    height: 35px;
+}
+
+#submit-container{
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 3px;
+    margin-top: 5px;
+}

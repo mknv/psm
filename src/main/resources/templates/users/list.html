@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+    <head>
+        <title th:text="#{users.list}"></title>
+        <link rel="stylesheet" th:href="@{/css/users.css}"/>
+        <script type="text/javascript" th:inline="javascript">
+            function confirmDelete() {
+            return confirm([[#{user.delete.confirm}]]);
+            }
+            </script>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <div class="header" th:text="#{users.list}" />
+            <div class="error" th:text="${error}" />
+            <table class="datatable">
+                <tr>
+                    <th th:text="#{user.name}"></th>
+                    <th th:text="#{user.roles}"></th>
+                    <th></th>
+                </tr>
+                <th:block th:each="user: ${users}">
+                    <tr>
+                        <td>
+                            <a th:href="@{/users/edit/{userId}(userId=${user.id})}" th:text="${user.name}"></a>
+                        </td>
+                        <td>
+                            <th:block th:each="role: ${user.roles}">
+                                <th:block th:text="${role.name}"/>
+                                <br/>
+                            </th:block>
+                        </td>
+                        <td>
+                            <form th:action="@{/users/delete/{userId}(userId=${user.id})}" method="post" onsubmit="return confirmDelete();">
+                                <input type="submit" th:value="#{delete}" />
+                            </form>
+                        </td>
+                    </tr>
+                </th:block>
+            </table>
+            <div>
+                <a th:href="@{/users/create}" th:text="#{user.create}"></a>
+            </div>
+        </div>
+    </body>
+</html>

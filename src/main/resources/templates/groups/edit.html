@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+    <head>
+        <title th:text="#{group.edit}"></title>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <div class="header" th:text="#{group.edit}" />
+            <form th:action="@{/groups/update}" th:object="${group}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <table>
+                    <tr>
+                        <td th:text="#{group.name}"></td>
+                        <td>
+                            <input type="text" th:field="*{name}" autofocus="autofocus" />
+                        </td>
+                        <td class="error" th:errors="*{name}"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="error" th:text="${error}"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="submit" th:value="#{save}" />
+                        </td>
+                        <td></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </body>
+</html>

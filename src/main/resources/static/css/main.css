@@ -1,0 +1,42 @@
+@media screen and (max-width: 800px){
+    input{
+        font-size: medium;
+    }
+}
+
+.datatable th{
+    background-color: #4CAF50;
+    color: white;
+}
+
+.datatable{
+    margin-bottom: 10px;
+    border-collapse: collapse;
+}
+
+.datatable td, .datatable th{
+    padding: 5px;
+    border: 1px solid black;
+    border-collapse: collapse;
+    vertical-align: central;
+}
+
+.datatable button{
+    margin: auto;
+}
+
+.header{
+    font-size: large;
+}
+
+.error{
+    color: red;
+}
+
+.center{
+    text-align: center;
+}
+
+.bold{
+    font-weight: bold;
+}

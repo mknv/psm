@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+    <head>
+        <title th:text="#{entry.edit}"></title>
+        <link rel="stylesheet" th:href="@{/css/entries.css}" />
+        <script type="text/javascript">
+
+            function setPasswordValidityEnabled() {
+                if ($("#remove-password-validity").is(":checked")) {
+                    $("#prolong-password").attr("disabled", "disabled");
+                } else {
+                    $("#prolong-password").removeAttr("disabled");
+                }
+            }
+
+            function setPasswordValidity() {
+                if ($("#prolong-password").is(":checked")) {
+                    $("#password-validity").removeAttr("disabled");
+                    $("#remove-password-validity").attr("disabled", "disabled");
+                } else {
+                    $("#password-validity").attr("disabled", "disabled");
+                    $("#remove-password-validity").removeAttr("disabled");
+                }
+            }
+
+            var passwordVisible = false;
+            function showPassword() {
+                var showPasswordUrl = "url([[@{/images/show_password.png}]])";
+                var hidePasswordUrl = "url([[@{/images/hide_password.png}]])";
+                passwordVisible = !passwordVisible;
+                if (passwordVisible) {
+                    $("#password").attr("type", "text");
+                    $("#show-hide-password").css("background-image", hidePasswordUrl);
+                } else {
+                    $("#password").attr("type", "password");
+                    $("#show-hide-password").css("background-image", showPasswordUrl);
+                }
+            }
+
+            function copyPasswordToClipboard() {
+                var password = $("#password").val();
+                $("body").append(`<input id="temp_password" type="text" value="${password}"/>`);
+                $("#temp_password").select();
+                document.execCommand("copy");
+                $("#temp_password").remove();
+            }
+
+            function generatePassword() {
+                var type = $("#password-type-container input[name='password-type']:checked").val();
+                var length = $("#password-length").val();
+                var url = `[(@{/rest/entries/generate-password?type=${type}&length=${length}})]`;
+                $.get(url, function (data) {
+                    $("#password").val(data);
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <div layout:fragment="content" id="content">
+            <h3 th:text="#{entry.edit}" />
+            <form th:action="@{/entries/update}" th:object="${entry}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <table id="fields-table">
+                    <tr>
+                        <td th:text="#{entry.name}"></td>
+                        <td><input type="text" th:field="*{name}" autofocus="autofocus" /></td>
+                    </tr>
+                    <tr><td colspan="2" class="error" th:errors="*{name}"></td></tr>
+                    <tr>
+                        <td th:text="#{entry.login}"></td>
+                        <td><input type="text" th:field="*{login}" /></td>
+                    </tr>
+                    <tr><td colspan="2" class="error" th:errors="*{login}"></td></tr>
+                    <tr>
+                        <td th:text="#{entry.email}"></td>
+                        <td><input type="email" th:field="*{email}" /></td>
+                    </tr>
+                    <tr><td colspan="2" class="error" th:errors="*{email}"></td></tr>
+                    <tr>
+                        <td th:text="#{entry.description}"></td>
+                        <td><textarea th:field="*{description}" rows="3" /></td>
+                    </tr>
+                    <tr><td colspan="2" class="error" th:errors="*{description}"></td></tr>
+                    <tr>
+                        <td th:text="#{entry.group}"></td>
+                        <td>
+                            <select th:field="*{group}">
+                                <option th:each="group : ${groups}" th:text="${group.name}" th:value="${group.id}"></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td colspan="2" class="error" th:errors="*{group}"></td></tr>
+                </table>
+                <fieldset id="password-wrapper">
+                    <legend th:text="#{entry.password}"/>
+                    <div id="password-container">
+                        <input id="password" type="password" name="password" th:value="*{password}">
+                            <button type="button" id="show-hide-password" onclick="showPassword()" 
+                                    th:style="'background-image: url(' + @{/images/show_password.png} + ')'" />
+                            <button type="button" onclick="copyPasswordToClipboard()" 
+                                    th:style="'background-image: url(' + @{/images/copy.png} + ')'" />
+                    </div>
+                    <div class="error" th:errors="*{password}"/>
+                    <div id="password-type-container">
+                        <input type="radio" name="password-type" value="simple" checked="checked"/>
+                        <label for="password-type-simple" th:text="#{entry.password.simple}" />
+                        <input type="radio" name="password-type" value="complex" />
+                        <label for="password-type-complex" th:text="#{entry.password.complex}" />
+                    </div>
+                    <div id="password-length-container">
+                        <label th:text="#{entry.password.length}" />
+                        <input type="number" id="password-length" min="1" max="100" value="15"/>
+                        <td th:text="#{entry.password.length.symbols}"/>
+                    </div>
+                    <div>
+                        <input type="button" th:value="#{entry.password.generate}" onclick="generatePassword()" />
+                    </div>
+                    <div id="password-validity-container">
+                        <span th:text="#{entry.password.validity}"></span>
+                        <div>
+                            <input type="checkbox" name="remove-password-validity" id="remove-password-validity" onclick="setPasswordValidityEnabled()"/>
+                            <label for="remove-password-validity" th:text="#{entry.password.no.validity}"/>
+                        </div>
+                        <div>
+                            <input type="checkbox" name="prolong-password" id="prolong-password" onclick="setPasswordValidity()"/>
+                            <label for="prolong-password" th:text="#{entry.password.validity.prolong}"/>
+                            <input type="number" name="password-validity" id="password-validity"
+                                   disabled="disabled" min="1" max="36" value="3" />
+                            <span th:text="#{entry.password.validity.months}" />
+                        </div>
+                    </div>
+                </fieldset>
+                <div id="submit-container">
+                    <input type="submit" th:value="#{save}" />
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

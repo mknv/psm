@@ -1,0 +1,128 @@
+@media screen and (max-width: 800px){
+    html, body{
+        height: 100%;
+    }
+
+    body{
+        width: 100%;
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    header{
+        flex: 0 0 auto;
+        display: flex;
+        padding-left: 5px;
+        padding-top: 5px;
+        border-bottom: 1px solid gray;
+        font-size: large;
+    }
+
+    #header-container{
+        display: flex;
+        flex-direction: column-reverse;
+        padding-left: 10px;
+    }
+
+    #header-logout{
+        display: flex;
+        align-items: center;
+    }
+
+    #header-logout>*{
+        margin-right: 5px;
+    }
+
+    #header-links{
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        font-size: larger;
+    }
+
+    #header-links>*{
+        padding-right: 5px;
+        padding-bottom: 5px;
+    }
+
+    #content{
+        flex: 1 0 auto;
+        margin: 5px;
+    }
+
+    footer{
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: center;
+        padding: 5px 0px;
+        border-top: 1px solid gray;
+    }
+}
+
+@media screen and (min-width: 800px){
+    *{
+        margin: 0;
+        padding: 0;
+    }
+
+    html, body{
+        height: 100%;
+    }
+
+    body{
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        width: 800px;
+    }
+
+    header{
+        flex: 0 0 auto;
+        display: flex;
+        padding: 5px 0px;
+        border-left: 1px solid gray;
+        border-right: 1px solid gray;
+    }
+
+    #header-container{
+        display: flex;
+        align-items: flex-start;
+        width: 100%;
+        margin: 5px;
+    }
+
+    #header-links{
+        flex: 1;
+    }
+
+    #header-logout{
+        display: flex;
+        align-items: center;
+    }
+
+    #header-logout>*{
+        margin-left: 5px;
+    }
+
+    #content{
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border: 1px solid gray;
+    }
+
+    footer{
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: center;
+        padding: 5px 0px;
+        border-left: 1px solid gray;
+        border-right: 1px solid gray;
+    }
+}
+
+#content>*{
+    margin: 5px;
+}

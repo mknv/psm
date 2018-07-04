@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+    <head>
+        <title th:text="#{groups.list}"></title>
+        <script type="text/javascript" th:inline="javascript">
+            function confirmDelete(){
+            return confirm([[#{group.delete.confirm}]]);
+            }
+        </script>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <div class="header" th:text="#{groups.list}" />
+            <div class="error" th:text="${error}" />
+            <table class="datatable">
+                <tr>
+                    <th th:text="#{group.name}"></th>
+                    <th></th>
+                </tr>
+                <th:block th:each="group: ${groups}">
+                    <tr>
+                        <td>
+                            <a th:href="@{/groups/edit/{groupId}(groupId=${group.id})}" th:text="${group.name}"></a>
+                        </td>
+                        <td>
+                            <form th:action="@{/groups/delete/{groupId}(groupId=${group.id})}" method="post" onsubmit="return confirmDelete();">
+                                <input type="submit" th:value="#{delete}" />
+                            </form>
+                        </td>
+                    </tr>
+                </th:block>
+            </table>
+            <div>
+                <a th:href="@{/groups/create}" th:text="#{group.create}"></a>
+            </div>
+        </div>
+    </body>
+</html>

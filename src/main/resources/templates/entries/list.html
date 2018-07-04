@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+    <head>
+        <title th:text="#{entries.list}"></title>
+        <link rel="stylesheet" th:href="@{/css/entries.css}" />
+        <script type="text/javascript">
+            var wideMedia = window.matchMedia("(min-width: 800px)");
+            wideMedia.addListener(function () {
+                loadGroups();
+            });
+
+            $(document).ready(function () {
+                loadGroups();
+                findAll();
+            });
+            function findAll() {
+                var url = "[[@{/rest/entries}]]";
+                $.get(url, function (data) {
+                    renderTable(data);
+                });
+            }
+
+            function findByName(name) {
+                if (name.length < 2) {
+                    $("#txtFind").addClass("wrong-value");
+                    findAll();
+                } else {
+                    $("#txtFind").removeClass("wrong-value");
+                    var url = `[[@{/rest/entries?name=${name}}]]`;
+                    $.get(url, function (data) {
+                        renderTable(data);
+                    });
+                }
+            }
+
+            function findByGroup(groupId) {
+                if (groupId === undefined) {
+                    findAll();
+                } else {
+                    var url = `[[@{/rest/entries/group/${groupId}}]]`;
+                    $.get(url, function (data) {
+                        renderTable(data);
+                    });
+                }
+            }
+
+            function loadGroups() {
+                if (!wideMedia.matches) {
+                    return;
+                }
+                var url = "[[@{/rest/groups}]]";
+                $("#groups").empty();
+                $("#groups").append('<input type="button" value="[[#{entry.groups.all}]]" onclick="findByGroup()" />');
+                $.get(url, function (data) {
+                    $.each(data, function (i, item) {
+                        $("<input>")
+                                .attr("type", "button")
+                                .attr("value", item.name)
+                                .attr("onclick", `findByGroup(${item.id})`)
+                                .appendTo("#groups");
+                    });
+                });
+            }
+            function deleteEntry(entryId) {
+                if (!confirm("[[#{entry.delete.confirm}]]")) {
+                    return;
+                }
+                var url = "[[@{/rest/entries/delete}]]";
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                $.ajax({url: url,
+                    data: {id: entryId},
+                    type: 'post',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader(header, token);
+                    }
+                }).done(function (data) {
+                    findAll();
+                });
+            }
+
+            function renderTable(data) {
+                var copyImageUrl = "[[@{/images/copy.png}]]";
+                var editImageUrl = "[[@{/images/edit.png}]]";
+                var deleteImageUrl = "[[@{/images/delete.png}]]";
+                var editUrl = "[[@{/entries/edit/}]]";
+                $("#datatable > tbody").empty();
+                $.each(data, function (i, item) {
+                    var $row = $("<tr/>").appendTo("#datatable > tbody");
+                    if (item.daysLeft !== null && item.daysLeft < 30) {
+                        $row.attr("class", "expired");
+                    }
+                    $("<td>" + item.name + "</td>").appendTo($row);
+                    $("<td class='login'>" + (item.login === null ? "" : item.login) + "</td>").appendTo($row);
+                    $("<td class='email'>" + (item.email === null ? "" : item.email) + "</td>").appendTo($row);
+                    $("<td class='description'>" + (item.description === null ? "" : item.description) + "</td>").appendTo($row);
+                    $("<td>" + (item.daysLeft === null ? "" : item.daysLeft) + "</td>")
+                            .attr("class", "center").appendTo($row);
+                    $("<td>" + `<button type="button" style="background-image: url(${copyImageUrl})" onclick="showPassword(${item.id})" />` + "</td>")
+                            .appendTo($row);
+                    $("<td>" + `<button type="button" style="background-image: url(${editImageUrl})" onclick="location.href='${editUrl + item.id}'" />` + "</td>")
+                            .appendTo($row);
+                    $("<td>" + `<button type="button" style="background-image: url(${deleteImageUrl})" onclick="deleteEntry(${item.id})" />` + "</td>")
+                            .appendTo($row);
+                });
+            }
+
+            function copyPasswordToClipboard(id) {
+                //not implemented yet
+            }
+
+            function showPassword(id) {
+                var url = `[[@{/rest/entries/getpassword/${id}}]]`;
+                $.get(url, function (data) {
+                    alert(data);
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <div class="header" th:text="#{entries.list}" />
+            <div id="find-container">
+                <div th:text="#{entry.find}" />
+                <input type="text" id="txtFind" onkeyup="findByName(this.value)" />
+            </div>
+            <div id="groups-container">
+                <div th:text="#{entry.groups}" />
+                <div id="groups"></div>
+            </div>
+            <div>
+                <a th:href="@{/entries/create}" th:text="#{entry.create}"></a>
+            </div>
+            <div>
+                <table class="datatable" id="datatable">
+                    <thead>
+                        <tr>
+                            <th th:text="#{entry.name}"></th>
+                            <th class="login" th:text="#{entry.login}"></th>
+                            <th class="email" th:text="#{entry.email}"></th>
+                            <th class="description" th:text="#{entry.description}"></th>
+                            <th th:text="#{entry.days.left}"></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>

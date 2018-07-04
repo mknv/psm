@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+    <head>
+        <title th:text="#{user.edit}"></title>
+        <link rel="stylesheet" th:href="@{/css/users.css}"/>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <div class="header" th:text="#{user.edit}" />
+            <form th:action="@{/users/update}" th:object="${user}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <table>
+                    <tr>
+                        <td th:text="#{user.name}"></td>
+                        <td><input type="text" th:field="*{name}" autofocus="autofocus"/></td>
+                    </tr>
+                    <tr><td colspan="3" class="error" th:errors="*{name}"></td></tr>
+                    <tr>
+                        <td th:text="#{user.password}"></td>
+                        <td><input type="password" th:field="*{password}"/></td>
+                    </tr>
+                    <tr><td colspan="3" class="error" th:errors="*{password}"></td></tr>
+                    <tr>
+                        <td th:text="#{user.roles}"></td>
+                        <td>
+                            <div th:each="role : ${roles}" class="role">
+                                <label th:for="${#ids.next('roles')}" />
+                                <input type="checkbox" th:field="*{roles}" th:text="${role.name}" th:value="${role.id}" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr><td colspan="3" class="error" th:errors="*{roles}"></td></tr>
+                    <tr><td colspan="3" class="error" th:text="${error}"></td></tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="submit" th:value="#{save}" /></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </body>
+</html>

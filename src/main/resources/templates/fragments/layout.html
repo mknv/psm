@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>PSM</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+        <link rel="icon" type="image/png" th:href="@{/images/favico.png}" />
+        <link rel="stylesheet" th:href="@{/css/layout.css}" />
+        <link rel="stylesheet" th:href="@{/css/main.css}" />
+        <script type="text/javascript" src="../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+    </head>
+    <body>
+        <header>
+            <div id="header-img">
+                <img th:src="@{/images/icon.png}" alt="PSM" />
+            </div>
+            <div id="header-container">
+                <div id="header-links">
+                    <a th:href="@{/entries}" th:text="#{layout.link.entries}"></a> 
+                    <a th:href="@{/groups}" th:text="#{layout.link.groups}"></a> 
+                    <th:block sec:authorize="hasAuthority('admin')">
+                        <a th:href="@{/users}" th:text="#{layout.link.users}"></a>
+                    </th:block>
+                </div>
+                <div id="header-logout">
+                    <div th:text="#{you.are.logged.as} + ' ' + ${#authentication.principal}" />
+                    <div>
+                        <form th:action="@{/logout}" method="post">
+                            <input type="submit" th:value="#{layout.link.logout}" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div layout:fragment="content" id="content"></div>
+        <footer>
+            <div>Powered by mknv 2018</div>
+        </footer>
+    </body>
+</html>
