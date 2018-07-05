@@ -40,8 +40,10 @@
                 var type = $("#password-type-container input[name='password-type']:checked").val();
                 var length = $("#password-length").val();
                 var url = `[(@{/rest/entries/generate-password?type=${type}&length=${length}})]`;
-                $.get(url, function (data) {
-                    $("#password").val(data);
+                $.get(url, function (data, textStatus, xhr) {
+                    if (xhr.responseJSON) {
+                        $("#password").val(data.password);
+                    }
                 });
             }
         </script>

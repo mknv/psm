@@ -26,13 +26,6 @@ public class AppConfiguration implements WebMvcConfigurer {
     private MessageSource messageSource;
 
     @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/login-failed").setViewName("login-failed");
-        registry.addViewController("/403").setViewName("403");
-    }
-
-    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
         registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/");

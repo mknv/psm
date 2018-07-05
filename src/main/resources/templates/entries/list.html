@@ -16,8 +16,10 @@
             });
             function findAll() {
                 var url = "[[@{/rest/entries}]]";
-                $.get(url, function (data) {
-                    renderTable(data);
+                $.get(url, function (data, textStatus, xhr) {
+                    if (xhr.responseJSON) {
+                        renderTable(data);
+                    }
                 });
             }
 
@@ -28,8 +30,10 @@
                 } else {
                     $("#txtFind").removeClass("wrong-value");
                     var url = `[[@{/rest/entries?name=${name}}]]`;
-                    $.get(url, function (data) {
-                        renderTable(data);
+                    $.get(url, function (data, textStatus, xhr) {
+                        if (xhr.responseJSON) {
+                            renderTable(data);
+                        }
                     });
                 }
             }
@@ -39,8 +43,10 @@
                     findAll();
                 } else {
                     var url = `[[@{/rest/entries/group/${groupId}}]]`;
-                    $.get(url, function (data) {
-                        renderTable(data);
+                    $.get(url, function (data, textStatus, xhr) {
+                        if (xhr.responseJSON) {
+                            renderTable(data);
+                        }
                     });
                 }
             }
@@ -62,15 +68,15 @@
                     });
                 });
             }
+
             function deleteEntry(entryId) {
                 if (!confirm("[[#{entry.delete.confirm}]]")) {
                     return;
                 }
-                var url = "[[@{/rest/entries/delete}]]";
+                var url = `[[@{/rest/entries/delete/${entryId}}]]`;
                 var token = $("meta[name='_csrf']").attr("content");
                 var header = $("meta[name='_csrf_header']").attr("content");
                 $.ajax({url: url,
-                    data: {id: entryId},
                     type: 'post',
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader(header, token);
@@ -112,8 +118,10 @@
 
             function showPassword(id) {
                 var url = `[[@{/rest/entries/getpassword/${id}}]]`;
-                $.get(url, function (data) {
-                    alert(data);
+                $.get(url, function (data, textStatus, xhr) {
+                    if (xhr.responseJSON) {
+                        alert(data.password);
+                    }
                 });
             }
         </script>

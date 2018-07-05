@@ -40,12 +40,16 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         User user = userRepository.findByNameFetchRoles(username);
         if (user == null) {
             WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
-            log.info("Authentication failed. User: {} not found. IP: {}", username, details.getRemoteAddress());
+            if (!details.getRemoteAddress().equals("0:0:0:0:0:0:0:1")) {
+                log.info("Authentication failed. User: {} not found. IP: {}", username, details.getRemoteAddress());
+            }
             throw new UsernameNotFoundException("Authentication failed");
         }
         if (!passwordEncoder.matches(password, user.getPassword())) {
             WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
-            log.info("Authentication failed. User: {}. Password: {}. IP: {}", username, password, details.getRemoteAddress());
+            if (!details.getRemoteAddress().equals("0:0:0:0:0:0:0:1")) {
+                log.info("Authentication failed. User: {}. Password: {}. IP: {}", username, password, details.getRemoteAddress());
+            }
             throw new BadCredentialsException("Authentication failed");
         }
         List<GrantedAuthority> authorities = new ArrayList<>();

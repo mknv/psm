@@ -284,13 +284,13 @@ public class EntryRestControllerTest {
         mockMvc.perform(get("/rest/entries/generate-password")
                 .param("length", "10").param("type", "simple").secure(true))
                 .andExpect(status().isOk())
-                .andExpect(content().string("simplepass"));
+                .andExpect(jsonPath("$.password", is("simplepass")));
 
         //Should return a password of type complex with length 11
         mockMvc.perform(get("/rest/entries/generate-password")
                 .param("length", "11").param("type", "complex").secure(true))
                 .andExpect(status().isOk())
-                .andExpect(content().string("complexpass"));
+                .andExpect(jsonPath("$.password", is("complexpass")));
     }
 
     @Test
@@ -313,7 +313,7 @@ public class EntryRestControllerTest {
         mockMvc.perform(get("/rest/entries/getpassword/2").secure(true)
                 .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", is("password1")));
+                .andExpect(jsonPath("$.password", is("password1")));
 
         //Should return not found status when an entry is not exist
         mockMvc.perform(get("/rest/entries/getpassword/89").secure(true)
@@ -344,17 +344,17 @@ public class EntryRestControllerTest {
         given(entryRepository.findByIdFetchAll(2)).willReturn(userEntry1);
 
         //Should delete the entry succesfully
-        mockMvc.perform(post("/rest/entries/delete").param("id", "1").secure(true).with(csrf())
+        mockMvc.perform(post("/rest/entries/delete/1").secure(true).with(csrf())
                 .with(user("admin").authorities(new SimpleGrantedAuthority("admin"))))
                 .andExpect(status().isOk());
 
         //Should return not found status when attempts to delete the non existent entry
-        mockMvc.perform(post("/rest/entries/delete").param("id", "3").secure(true).with(csrf())
+        mockMvc.perform(post("/rest/entries/delete/3").secure(true).with(csrf())
                 .with(user("admin").password("password").authorities(new SimpleGrantedAuthority("admin"))))
                 .andExpect(status().isNotFound());
 
         //Should return forbidden status when the entry belongs to another user
-        mockMvc.perform(post("/rest/entries/delete").param("id", "2").secure(true).with(csrf())
+        mockMvc.perform(post("/rest/entries/delete/2").secure(true).with(csrf())
                 .with(user("admin").password("password").authorities(new SimpleGrantedAuthority("admin"))))
                 .andExpect(status().isForbidden());
     }

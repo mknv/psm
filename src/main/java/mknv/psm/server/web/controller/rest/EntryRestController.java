@@ -1,8 +1,8 @@
 package mknv.psm.server.web.controller.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -69,19 +69,20 @@ public class EntryRestController {
         return ResponseEntity.ok().body(entries);
     }
 
-    @GetMapping(value = "/entries/generate-password", produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity generatePassword(@RequestParam("length") Integer length, @RequestParam("type") String type) {
+    @GetMapping(value = "/entries/generate-password")
+    public Map generatePassword(@RequestParam("length") Integer length, @RequestParam("type") String type) {
         PasswordType passwordType = null;
         if (type.equals("simple")) {
             passwordType = PasswordType.SIMPLE;
         } else if (type.equals("complex")) {
             passwordType = PasswordType.COMPLEX;
         }
-        return ResponseEntity.ok(passwordGenerator.generate(length, passwordType));
+        String password = passwordGenerator.generate(length, passwordType);
+        return Collections.singletonMap("password", password);
     }
 
     @GetMapping("/entries/getpassword/{id}")
-    public String getPassword(@PathVariable("id") Integer id, Authentication authentication) throws JsonProcessingException {
+    public Map getPassword(@PathVariable("id") Integer id, Authentication authentication) {
         Entry entry = entryRepository.findByIdFetchAll(id);
         if (entry == null) {
             throw new EntityNotFoundException(Entry.class, id);
@@ -89,15 +90,15 @@ public class EntryRestController {
         if (!entry.getUser().getName().equals(authentication.getName())) {
             throw new ControllerSecurityException();
         }
-        ObjectMapper mapper = new ObjectMapper();
-        if (entry.getPassword() == null) {
-            return mapper.writeValueAsString("");
+        String password = "";
+        if (entry.getPassword() != null) {
+            password = passwordEncryptor.decrypt(entry.getPassword());
         }
-        return mapper.writeValueAsString(passwordEncryptor.decrypt(entry.getPassword()));
+        return Collections.singletonMap("password", password);
     }
 
-    @PostMapping(value = "/entries/delete")
-    public ResponseEntity delete(@RequestParam("id") Integer id, Authentication authentication) {
+    @PostMapping(value = "/entries/delete/{id}")
+    public ResponseEntity delete(@PathVariable("id") Integer id, Authentication authentication) {
         Entry entry = entryRepository.findByIdFetchAll(id);
         if (entry == null) {
             throw new EntityNotFoundException(Entry.class, id);

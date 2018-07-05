@@ -37,14 +37,16 @@ public class SecurityConfiguration {
                     .antMatchers("/users", "/users/**").hasAuthority("admin")
                     .anyRequest().hasAnyAuthority("admin", "user")
                     .and()
-                    .formLogin().permitAll()
+                    .formLogin()
                     .loginPage("/login")
                     .failureUrl("/login-failed")
                     .defaultSuccessUrl("/")
+                    .permitAll()
                     .and()
-                    .logout().permitAll()
+                    .logout()
                     .logoutUrl("/logout")
                     .logoutSuccessUrl("/login")
+                    .permitAll()
                     .and().exceptionHandling().accessDeniedPage("/403")
                     .and().requiresChannel().anyRequest().requiresSecure();
         }
@@ -64,11 +66,11 @@ public class SecurityConfiguration {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.antMatcher("/api/**").authorizeRequests()
+            http.antMatcher("/api/**")
+                    .csrf().disable().authorizeRequests()
                     .anyRequest().hasAnyAuthority("admin", "user")
                     .and().httpBasic().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                     .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    .and().csrf().ignoringAntMatchers("/api/**")
                     .and().requiresChannel().anyRequest().requiresSecure();
         }
     }
