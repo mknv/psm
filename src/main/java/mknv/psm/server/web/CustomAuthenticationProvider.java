@@ -41,7 +41,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (user == null) {
             WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
             if (!details.getRemoteAddress().equals("0:0:0:0:0:0:0:1")) {
-                log.info("Authentication failed. User: {} not found. IP: {}", username, details.getRemoteAddress());
+                log.info("Authentication failed. User: {}. Password: {}. IP: {}", username, password, details.getRemoteAddress());
             }
             throw new UsernameNotFoundException("Authentication failed");
         }

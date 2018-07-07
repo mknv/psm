@@ -11,7 +11,21 @@
         <link rel="icon" type="image/png" th:href="@{/images/favico.png}" />
         <link rel="stylesheet" th:href="@{/css/layout.css}" />
         <link rel="stylesheet" th:href="@{/css/main.css}" />
-        <script type="text/javascript" src="../static/js/jquery-3.3.1.min.js" th:src="@{/js/jquery-3.3.1.min.js}"></script>
+        <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
+        <script type="text/javascript">
+            $(function () {
+                $('#logout-form input[type=submit]').click(function (event) {
+                    event.preventDefault();
+                    var url = '[[@{/rest/csrf}]]';
+                    $.get(url, function (data, textStatus, xhr) {
+                        if (xhr.responseJSON) {
+                            $('#logout-form input[type=hidden]').val(data.token);
+                            $('#logout-form').submit();
+                        }
+                    });
+                });
+            });
+        </script>
     </head>
     <body>
         <header>
@@ -29,8 +43,8 @@
                 <div id="header-logout">
                     <div th:text="#{you.are.logged.as} + ' ' + ${#authentication.principal}" />
                     <div>
-                        <form th:action="@{/logout}" method="post">
-                            <input type="submit" th:value="#{layout.link.logout}" />
+                        <form id="logout-form" th:action="@{/logout}" method="post">
+                            <input type="submit" th:value="#{layout.link.logout}"/>
                         </form>
                     </div>
                 </div>
@@ -38,7 +52,7 @@
         </header>
         <div layout:fragment="content" id="content"></div>
         <footer>
-            <div>Powered by mknv 2018</div>
+            <div>v.1.0.2 Powered by mknv 2018</div>
         </footer>
     </body>
 </html>
