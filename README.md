@@ -1,0 +1,1 @@
+This is a web application for user accounts storage. Written on Java using Spring Boot 2, Hibernate and Postgresql. Every entry has name, login, email, description, group and password. Passwords are encrypted using 256 bit AES encryption.
