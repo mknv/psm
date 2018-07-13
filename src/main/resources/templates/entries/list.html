@@ -103,7 +103,7 @@
                     $("<td class='description'>" + (item.description === null ? "" : item.description) + "</td>").appendTo($row);
                     $("<td>" + (item.daysLeft === null ? "" : item.daysLeft) + "</td>")
                             .attr("class", "center").appendTo($row);
-                    $("<td>" + `<button type="button" style="background-image: url(${copyImageUrl})" onclick="showPassword(${item.id})" />` + "</td>")
+                    $("<td>" + `<button type="button" style="background-image: url(${copyImageUrl})" onclick="copyPasswordToClipboard(${item.id})" />` + "</td>")
                             .appendTo($row);
                     $("<td>" + `<button type="button" style="background-image: url(${editImageUrl})" onclick="location.href='${editUrl + item.id}'" />` + "</td>")
                             .appendTo($row);
@@ -113,7 +113,16 @@
             }
 
             function copyPasswordToClipboard(id) {
-                //not implemented yet
+                var url = `[[@{/rest/entries/getpassword/${id}}]]`;
+                $.get({url: url, async: false}, function (data, textStatus, xhr) {
+                    if (xhr.responseJSON) {
+                        var password = data.password;
+                        $("body").append(`<input id="temp_password" type="text" value="${password}"/>`);
+                        $("#temp_password").select();
+                        document.execCommand("copy");
+                        $("#temp_password").remove();
+                    }
+                });
             }
 
             function showPassword(id) {
