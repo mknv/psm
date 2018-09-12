@@ -97,7 +97,7 @@
                     if (item.daysLeft !== null && item.daysLeft < 30) {
                         $row.attr("class", "expired");
                     }
-                    $("<td>" + item.name + "</td>").appendTo($row);
+                    $("<td class='name'>" + item.name + "</td>").appendTo($row);
                     $("<td class='login'>" + (item.login === null ? "" : item.login) + "</td>").appendTo($row);
                     $("<td class='email'>" + (item.email === null ? "" : item.email) + "</td>").appendTo($row);
                     $("<td class='description'>" + (item.description === null ? "" : item.description) + "</td>").appendTo($row);
@@ -140,7 +140,7 @@
             <div class="header" th:text="#{entries.list}" />
             <div id="find-container">
                 <div th:text="#{entry.find}" />
-                <input type="text" id="txtFind" onkeyup="findByName(this.value)" />
+                <input type="text" id="txtFind" autofocus="autofocus" onkeyup="findByName(this.value)" />
             </div>
             <div id="groups-container">
                 <div th:text="#{entry.groups}" />

@@ -81,7 +81,7 @@
                     <tr><td colspan="2" class="error" th:errors="*{email}"></td></tr>
                     <tr>
                         <td th:text="#{entry.description}"></td>
-                        <td><textarea th:field="*{description}" rows="3" /></td>
+                        <td><textarea id="edit-description" th:field="*{description}" rows="3" /></td>
                     </tr>
                     <tr><td colspan="2" class="error" th:errors="*{description}"></td></tr>
                     <tr>
@@ -114,9 +114,7 @@
                         <label th:text="#{entry.password.length}" />
                         <input type="number" id="password-length" min="1" max="100" value="15"/>
                         <td th:text="#{entry.password.length.symbols}"/>
-                    </div>
-                    <div>
-                        <input type="button" th:value="#{entry.password.generate}" onclick="generatePassword()" />
+                        <input id="generate-password" type="button" th:value="#{entry.password.generate}" onclick="generatePassword()" />
                     </div>
                     <div id="password-validity-container">
                         <span th:text="#{entry.password.validity}"></span>

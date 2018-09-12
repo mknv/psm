@@ -1,6 +1,12 @@
+/*LIST*/
 @media screen and (max-width: 800px){
     #groups-container>*, #groups>*{
         display: none;
+    }
+
+    .name{
+        max-width: 200px;
+        overflow: hidden;
     }
 
     .login, .email, .description{
@@ -25,12 +31,22 @@
         width: 20em;
     }
 
-    .login, .email, .description{
-        display: table-cell;
+    .name{
+        max-width: 200px;
+        overflow: hidden;
+    }
+
+    .name, .login, .email, .description{
+        max-width: 130px;
+        overflow: hidden;
+    }
+
+    #edit-description{
+        min-width: 250px;
+        max-width: 400px;
     }
 }
 
-/*LIST*/
 #find-container{
     display: flex;
     align-items: center;
@@ -76,6 +92,10 @@
 
 #password-length-container>*{
     margin-right: 10px;
+}
+
+#generate-password{
+    margin-left: 10px;
 }
 
 #password-validity-container{

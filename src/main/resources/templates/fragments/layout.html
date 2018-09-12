@@ -34,8 +34,8 @@
             </div>
             <div id="header-container">
                 <div id="header-links">
-                    <a th:href="@{/entries}" th:text="#{layout.link.entries}"></a> 
-                    <a th:href="@{/groups}" th:text="#{layout.link.groups}"></a> 
+                    <a th:href="@{/entries}" th:text="#{layout.link.entries}"></a>
+                    <a th:href="@{/groups}" th:text="#{layout.link.groups}"></a>
                     <th:block sec:authorize="hasAuthority('admin')">
                         <a th:href="@{/users}" th:text="#{layout.link.users}"></a>
                     </th:block>
@@ -52,7 +52,7 @@
         </header>
         <div layout:fragment="content" id="content"></div>
         <footer>
-            <div>v.1.0.2 Powered by mknv 2018</div>
+            <div>v.1.0.3 Powered by mknv 2018</div>
         </footer>
     </body>
 </html>

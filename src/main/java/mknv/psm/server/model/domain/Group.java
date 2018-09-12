@@ -33,7 +33,7 @@ public class Group implements Serializable {
     private Integer id;
 
     @NotBlank
-    @Size(max = 255)
+    @Size(max = 30)
     @Column
     private String name;
 
