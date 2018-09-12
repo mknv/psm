@@ -5,7 +5,7 @@
         <title th:text="#{entries.list}"></title>
         <link rel="stylesheet" th:href="@{/css/entries.css}" />
         <script type="text/javascript">
-            var wideMedia = window.matchMedia("(min-width: 800px)");
+            var wideMedia = window.matchMedia("(min-width: 1024px)");
             wideMedia.addListener(function () {
                 loadGroups();
             });
@@ -101,14 +101,13 @@
                     $("<td class='login'>" + (item.login === null ? "" : item.login) + "</td>").appendTo($row);
                     $("<td class='email'>" + (item.email === null ? "" : item.email) + "</td>").appendTo($row);
                     $("<td class='description'>" + (item.description === null ? "" : item.description) + "</td>").appendTo($row);
-                    $("<td>" + (item.daysLeft === null ? "" : item.daysLeft) + "</td>")
-                            .attr("class", "center").appendTo($row);
-                    $("<td>" + `<button type="button" style="background-image: url(${copyImageUrl})" onclick="copyPasswordToClipboard(${item.id})" />` + "</td>")
-                            .appendTo($row);
-                    $("<td>" + `<button type="button" style="background-image: url(${editImageUrl})" onclick="location.href='${editUrl + item.id}'" />` + "</td>")
-                            .appendTo($row);
-                    $("<td>" + `<button type="button" style="background-image: url(${deleteImageUrl})" onclick="deleteEntry(${item.id})" />` + "</td>")
-                            .appendTo($row);
+                    $("<td class='daysLeft'>" + (item.daysLeft === null ? "" : item.daysLeft) + "</td>").appendTo($row);
+                    $buttonCopy = $("<td class='buttons' />").appendTo($row);
+                    $buttonEdit = $("<td class='buttons' />").appendTo($row);
+                    $buttonDelete = $("<td class='buttons' />").appendTo($row);
+                    $(`<button type="button" style="background-image: url(${copyImageUrl})" onclick="copyPasswordToClipboard(${item.id})" />`).appendTo($buttonCopy);
+                    $(`<button type="button" style="background-image: url(${editImageUrl})" onclick="location.href='${editUrl + item.id}'" />`).appendTo($buttonEdit);
+                    $(`<button type="button" style="background-image: url(${deleteImageUrl})" onclick="deleteEntry(${item.id})" />`).appendTo($buttonDelete);
                 });
             }
 
@@ -149,8 +148,8 @@
             <div>
                 <a th:href="@{/entries/create}" th:text="#{entry.create}"></a>
             </div>
-            <div>
-                <table class="datatable" id="datatable">
+                <div style="width: 100%;">
+                    <table id="datatable" class="datatable">
                     <thead>
                         <tr>
                             <th th:text="#{entry.name}"></th>
@@ -158,9 +157,7 @@
                             <th class="email" th:text="#{entry.email}"></th>
                             <th class="description" th:text="#{entry.description}"></th>
                             <th th:text="#{entry.days.left}"></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
+                            <th colspan="3"></th>
                         </tr>
                     </thead>
                     <tbody></tbody>

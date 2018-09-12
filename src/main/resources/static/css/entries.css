@@ -1,20 +1,20 @@
 /*LIST*/
-@media screen and (max-width: 800px){
+@media screen and (max-width: 1024px){
     #groups-container>*, #groups>*{
         display: none;
-    }
-
-    .name{
-        max-width: 200px;
-        overflow: hidden;
     }
 
     .login, .email, .description{
         display: none;
     }
+
+    .daysLeft{
+        width: 15%;
+        text-align: center;
+    }
 }
 
-@media screen and (min-width: 800px){
+@media screen and (min-width: 1024px){
     #groups-container{
         display: flex;
     }
@@ -32,19 +32,42 @@
     }
 
     .name{
-        max-width: 200px;
-        overflow: hidden;
+        width: 20%;
     }
 
-    .name, .login, .email, .description{
-        max-width: 130px;
-        overflow: hidden;
+    .login{
+        width: 25%;
+    }
+
+    .email{
+        width: 15%;
+    }
+
+    .daysLeft{
+        width: 7%;
+        text-align: center;
     }
 
     #edit-description{
         min-width: 250px;
         max-width: 400px;
     }
+
+    #datatable{
+        width: calc(100% - 10px);
+        max-width: calc(100% - 10px);
+    }
+}
+
+.buttons{
+    width: 1px;
+}
+
+button{
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 35px;
+    height: 35px;
 }
 
 #find-container{
@@ -90,6 +113,10 @@
     margin-right: 5px;
 }
 
+#password-container button{
+    margin-left: 5px;
+}
+
 #password-length-container>*{
     margin-right: 10px;
 }
@@ -110,14 +137,6 @@
 
 input[type="number"]{
     width: 3em;
-}
-
-button{
-    background-repeat: no-repeat;
-    background-position: center;
-    margin-left: 5px;
-    width: 35px;
-    height: 35px;
 }
 
 #submit-container{
