@@ -10,15 +10,15 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  * @author mknv
  */
 @SpringBootApplication
-public class PsmServer extends SpringBootServletInitializer {
+public class Main extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
-        SpringApplication.run(PsmServer.class, args);
+        SpringApplication.run(Main.class, args);
     }
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(PsmServer.class);
+        return application.sources(Main.class);
     }
 
 }

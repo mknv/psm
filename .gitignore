@@ -1,7 +1,6 @@
 /target/
 /logs/
-/nbproject/
-/nbactions.xml
-/nb-configuration.xml
 /src/main/resources/application-prod.properties
-/*.tmp
+.classpath
+.project
+/.settings

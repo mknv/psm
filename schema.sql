@@ -1,4 +1,3 @@
---SET search_path TO dev;
 --TABLES
 
 CREATE TABLE roles (
