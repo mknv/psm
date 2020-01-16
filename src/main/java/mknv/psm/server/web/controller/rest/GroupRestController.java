@@ -17,7 +17,7 @@ import mknv.psm.server.model.repository.UserRepository;
  * @author mknv
  */
 @RestController
-@RequestMapping(value = {"/rest", "/api"}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = {"/rest", "/api"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class GroupRestController {
 
     @Autowired

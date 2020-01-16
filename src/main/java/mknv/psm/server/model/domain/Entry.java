@@ -17,7 +17,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
@@ -49,6 +48,11 @@ public class Entry implements Serializable {
     @Column
     private String email;
 
+    @Size(max = 30)
+    @Column
+    private String phone;
+
+    @Size(max = 255)
     @Column
     private String password;
 
@@ -60,11 +64,11 @@ public class Entry implements Serializable {
     private LocalDate expiredDate;
 
     @JsonIgnore
-    @NotNull
     @JoinColumn(name = "group_id", referencedColumnName = "id")
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Group group;
 
+    //Must not be null before saving
     @JsonIgnore
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -73,26 +77,8 @@ public class Entry implements Serializable {
     public Entry() {
     }
 
-    public Entry(String name, String login, String email, String password, String description, LocalDate expiredDate, Group group, User user) {
+    public Entry(String name, User user) {
         this.name = name;
-        this.login = login;
-        this.email = email;
-        this.password = password;
-        this.description = description;
-        this.expiredDate = expiredDate;
-        this.group = group;
-        this.user = user;
-    }
-
-    public Entry(Integer id, String name, String login, String email, String password, String description, LocalDate expiredDate, Group group, User user) {
-        this.id = id;
-        this.name = name;
-        this.login = login;
-        this.email = email;
-        this.password = password;
-        this.description = description;
-        this.expiredDate = expiredDate;
-        this.group = group;
         this.user = user;
     }
 
@@ -135,6 +121,14 @@ public class Entry implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getPassword() {

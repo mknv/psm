@@ -38,10 +38,10 @@ public class AppConfiguration implements WebMvcConfigurer {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder;
     }
-    
-    @Profile({"dev","test"})
+
+    @Profile({"dev", "test"})
     @Bean
-    public PasswordEncoder testPasswordEncoder(){
+    public PasswordEncoder testPasswordEncoder() {
         PasswordEncoder passwordEncoder = new PasswordEncoder() {
             @Override
             public String encode(CharSequence rawPassword) {
@@ -58,15 +58,11 @@ public class AppConfiguration implements WebMvcConfigurer {
 
     @Bean
     public ErrorAttributes errorAttributes() {
-        DefaultErrorAttributes attributes = new DefaultErrorAttributes(false) {
+        ErrorAttributes errorAttributes = new DefaultErrorAttributes() {
 
             @Override
             public Map<String, Object> getErrorAttributes(WebRequest webRequest, boolean includeStackTrace) {
-                Map<String, Object> errorAttributes = super.getErrorAttributes(webRequest, includeStackTrace);
-                //Replaces 'No message available' with empty string
-                if (errorAttributes.get("message").equals("No message available")) {
-                    errorAttributes.put("message", "");
-                }
+                Map<String, Object> errorAttributes = super.getErrorAttributes(webRequest, false);
                 Throwable error = getError(webRequest);
                 if (error instanceof NoHandlerFoundException) {
                     errorAttributes.put("message", messageSource.getMessage("error.page.not.found", null, null));
@@ -74,6 +70,6 @@ public class AppConfiguration implements WebMvcConfigurer {
                 return errorAttributes;
             }
         };
-        return attributes;
+        return errorAttributes;
     }
 }

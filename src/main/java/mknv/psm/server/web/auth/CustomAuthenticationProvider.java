@@ -1,4 +1,4 @@
-package mknv.psm.server.web;
+package mknv.psm.server.web.auth;
 
 import mknv.psm.server.model.domain.Role;
 import mknv.psm.server.model.domain.User;

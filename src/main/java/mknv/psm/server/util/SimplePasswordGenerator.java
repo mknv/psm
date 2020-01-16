@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * @author Mikhail Konovalov
+ * @author mknv
  */
 @Component
 public class SimplePasswordGenerator implements PasswordGenerator {
@@ -14,8 +14,11 @@ public class SimplePasswordGenerator implements PasswordGenerator {
 
     @Override
     public String generate(int length, PasswordType passwordType) {
-        if (length <= 0) {
-            return "";
+        if (length <= 0 || length > 100) {
+            throw new IllegalArgumentException("The length must be between 1 and 100.");
+        }
+        if (passwordType == null) {
+            throw new IllegalArgumentException("The passwordType is null.");
         }
         StringBuilder symbols = new StringBuilder();
         symbols.append("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");

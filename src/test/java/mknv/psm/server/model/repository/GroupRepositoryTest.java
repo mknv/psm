@@ -1,8 +1,5 @@
 package mknv.psm.server.model.repository;
 
-import mknv.psm.server.model.repository.UserRepository;
-import mknv.psm.server.model.repository.GroupRepository;
-import mknv.psm.server.model.repository.RoleRepository;
 import java.util.List;
 import mknv.psm.server.model.domain.Group;
 import mknv.psm.server.model.domain.User;
@@ -42,7 +39,6 @@ public class GroupRepositoryTest {
 
     @Test
     public void findByUser_OK() {
-        System.out.println("findByUser_OK");
         Role role = new Role(1, "role");
         User user1 = new User("user1", "password");
         user1.getRoles().add(role);
@@ -51,50 +47,47 @@ public class GroupRepositoryTest {
         roleRepository.save(role);
         userRepository.save(user1);
         userRepository.save(user2);
-        Group group1 = new Group("group1", user1);
-        Group group2 = new Group("group2", user2);
-        groupRepository.save(group1);
-        groupRepository.save(group2);
 
-        assertEquals(userRepository.findAll().size(), 2);
-        assertEquals(groupRepository.findAll().size(), 2);
-        //Should return only group1. A group's user is not fetched eagerly.
-        List<Group> result = groupRepository.findByUser(user1);
-        assertEquals(result.size(), 1);
-        assertEquals(result.get(0), group1);
+        Group expected = new Group("expected", user1);
+        Group group1 = new Group("group1", user2);
+
+        groupRepository.save(expected);
+        groupRepository.save(group1);
+
+        List<Group> actual = groupRepository.findByUser(user1);
+        assertEquals(1, actual.size());
+        assertEquals(expected, actual.get(0));
     }
 
     @Test
     public void findByIdFetchUser_OK() {
-        System.out.println("findByIdFetchUser_OK");
         Role role = new Role(1, "role");
         User user1 = new User("user1", "password");
         user1.getRoles().add(role);
         roleRepository.save(role);
         userRepository.save(user1);
-        Group group1 = new Group("group1", user1);
-        groupRepository.save(group1);
 
-        //Should return the group with the user
-        Group result = groupRepository.findByIdFetchUser(group1.getId());
-        assertEquals(result, group1);
-        assertEquals(result.getUser(), user1);
+        Group expected = new Group("expected", user1);
+        groupRepository.save(expected);
+
+        Group actual = groupRepository.findByIdFetchUser(expected.getId());
+        assertEquals(expected, actual);
+        assertNotNull(actual.getUser());
     }
 
     @Test(expected = DataIntegrityViolationException.class)
-    public void createWithExistingNameAndUser_Failed() {
-        System.out.println("createWithExistingNameAndUser_Failed");
+    public void saveGroup_With_ExistingName_Failed() {
+        //Attempts to save a group with the same name in another case
         Role role = new Role(1, "role");
         User user1 = new User("user1", "password");
         user1.getRoles().add(role);
         roleRepository.save(role);
         userRepository.save(user1);
+
         Group group1 = new Group("group1", user1);
         groupRepository.save(group1);
 
-        assertEquals(groupRepository.findAll().size(), 1);
-        //The unique index in DB for the name field is case insensitive
-        Group groupWithExistingNameAndUser = new Group("gROUp1", user1);
-        groupRepository.save(groupWithExistingNameAndUser);
+        Group group2 = new Group("gROUp1", user1);
+        groupRepository.save(group2);
     }
 }

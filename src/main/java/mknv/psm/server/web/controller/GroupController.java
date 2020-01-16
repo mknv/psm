@@ -43,7 +43,7 @@ public class GroupController {
     }
 
     @ModelAttribute("groups")
-    public List<Group> groups(Model model, Authentication authentication) {
+    public List<Group> groups(Authentication authentication) {
         User currentUser = userRepository.findByName(authentication.getName());
         List<Group> groups = groupRepository.findByUser(currentUser);
         return groups;
@@ -57,27 +57,12 @@ public class GroupController {
     @GetMapping("/groups/create")
     public String prepareCreate(Model model) {
         model.addAttribute("group", new Group());
-        return "groups/create";
+        return "groups/edit";
     }
 
-    @PostMapping("/groups/create")
-    public String create(@Valid @ModelAttribute Group group, BindingResult bindingResult,
-            Authentication authentication, Model model) {
-        if (bindingResult.hasErrors()) {
-            return "groups/create";
-        }
-        group.setUser(userRepository.findByName(authentication.getName()));
-        try {
-            groupRepository.save(group);
-        } catch (DataIntegrityViolationException ex) {
-            model.addAttribute("error", messageSource.getMessage("group.exists", null, null));
-            return "groups/create";
-        }
-        return "redirect:/groups";
-    }
-
-    @GetMapping("/groups/edit/{id}")
-    public String prepareEdit(@PathVariable("id") Integer id, Model model, Authentication authentication) {
+    @GetMapping(value = {"/groups/edit/{id}"})
+    public String prepareEdit(@PathVariable(name = "id") Integer id,
+            Model model, Authentication authentication) {
         Group group = groupRepository.findByIdFetchUser(id);
         if (group == null) {
             throw new EntityNotFoundException(Group.class, id);
@@ -89,17 +74,26 @@ public class GroupController {
         return "groups/edit";
     }
 
-    @PostMapping("/groups/update")
-    public String update(@Valid @ModelAttribute Group group, BindingResult bindingResult,
+    @PostMapping("/groups/save")
+    public String save(@Valid @ModelAttribute Group group, BindingResult bindingResult,
             Authentication authentication, Model model) {
         if (bindingResult.hasErrors()) {
             return "groups/edit";
         }
-        Group existingGroup = groupRepository.findByIdFetchUser(group.getId());
-        if (!existingGroup.getUser().getName().equals(authentication.getName())) {
-            throw new ControllerSecurityException();
+        User currentUser = userRepository.findByName(authentication.getName());
+
+        //If the group is existing, check that it belongs to the current user.
+        //Otherwise throw a ControllerSecurityException.
+        if (group.getId() != null) {
+            Group existingGroup = groupRepository.findByIdFetchUser(group.getId());
+            if (existingGroup == null) {
+                throw new EntityNotFoundException(Group.class, group.getId());
+            }
+            if (!existingGroup.getUser().equals(currentUser)) {
+                throw new ControllerSecurityException();
+            }
         }
-        group.setUser(existingGroup.getUser());
+        group.setUser(currentUser);
         try {
             groupRepository.save(group);
         } catch (DataIntegrityViolationException e) {

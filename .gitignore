@@ -1,6 +1,3 @@
 /target/
 /logs/
 /src/main/resources/application-prod.properties
-.classpath
-.project
-/.settings

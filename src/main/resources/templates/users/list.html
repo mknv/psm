@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{fragments/layout}">
     <head>
-        <title th:text="#{users.list}"></title>
+        <title th:text="#{user.list}"></title>
         <link rel="stylesheet" th:href="@{/css/users.css}"/>
         <script type="text/javascript" th:inline="javascript">
             function confirmDelete() {
             return confirm([[#{user.delete.confirm}]]);
             }
-            </script>
+        </script>
     </head>
     <body>
         <div layout:fragment="content">
-            <div class="header" th:text="#{users.list}" />
+            <div class="header" th:text="#{user.list}" />
             <div class="error" th:text="${error}" />
             <table class="datatable">
                 <tr>
@@ -33,7 +33,7 @@
                         </td>
                         <td>
                             <form th:action="@{/users/delete/{userId}(userId=${user.id})}" method="post" onsubmit="return confirmDelete();">
-                                <input type="submit" th:value="#{delete}" />
+                                <input type="submit" value="" class="image-button" th:style="'background-image: url(' + @{/images/delete.png} + ')'" />
                             </form>
                         </td>
                     </tr>

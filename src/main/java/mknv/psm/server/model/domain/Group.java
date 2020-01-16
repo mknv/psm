@@ -37,6 +37,7 @@ public class Group implements Serializable {
     @Column
     private String name;
 
+    //Must not be null before saving
     @JsonIgnore
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -109,5 +110,4 @@ public class Group implements Serializable {
     public String toString() {
         return "Group{" + "id=" + id + ", name=" + name + '}';
     }
-
 }

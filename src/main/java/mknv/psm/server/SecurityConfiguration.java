@@ -3,14 +3,12 @@ package mknv.psm.server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import mknv.psm.server.web.auth.CustomAuthenticationProvider;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import mknv.psm.server.web.CustomAuthenticationProvider;
 
 /**
  *
@@ -34,7 +32,7 @@ public class SecurityConfiguration {
         protected void configure(HttpSecurity http) throws Exception {
             http.authorizeRequests()
                     .antMatchers("/css/**", "/images/**", "/js/**").permitAll()
-                    .antMatchers("/users", "/users/**").hasAuthority("admin")
+                    .antMatchers("/users/**").hasAuthority("admin")
                     .antMatchers("/rest/csrf").permitAll()
                     .anyRequest().hasAnyAuthority("admin", "user")
                     .and()
@@ -68,11 +66,15 @@ public class SecurityConfiguration {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.antMatcher("/api/**")
-                    .csrf().disable().authorizeRequests()
+                    .authorizeRequests()
                     .anyRequest().hasAnyAuthority("admin", "user")
-                    .and().httpBasic().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                    .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    .and().requiresChannel().anyRequest().requiresSecure();
+                    .and()
+                    .csrf().disable()
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
+                    .requiresChannel().anyRequest().requiresSecure()
+                    .and()
+                    .httpBasic();
         }
     }
 }

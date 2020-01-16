@@ -1,147 +1,70 @@
 /*LIST*/
-@media screen and (max-width: 1024px){
-    #groups-container>*, #groups>*{
-        display: none;
-    }
-
-    .login, .email, .description{
-        display: none;
-    }
-
-    .daysLeft{
-        width: 15%;
-        text-align: center;
-    }
-}
-
-@media screen and (min-width: 1024px){
-    #groups-container{
-        display: flex;
-    }
-
-    #groups{
-        display: inline;
-    }
-
-    #fields-table input, #fields-table textarea {
-        width: 20em;
-    }
-
-    #password{
-        width: 20em;
-    }
-
-    .name{
-        width: 20%;
-    }
-
-    .login{
-        width: 25%;
-    }
-
-    .email{
-        width: 15%;
-    }
-
-    .daysLeft{
-        width: 7%;
-        text-align: center;
-    }
-
-    #edit-description{
-        min-width: 250px;
-        max-width: 400px;
-    }
-
-    #datatable{
-        width: calc(100% - 10px);
-        max-width: calc(100% - 10px);
-    }
-}
-
-.buttons{
-    width: 1px;
-}
-
-button{
-    background-repeat: no-repeat;
-    background-position: center;
-    width: 35px;
-    height: 35px;
-}
-
 #find-container{
     display: flex;
     align-items: center;
+    margin-bottom: 5px;
 }
 
-#txtFind{
-    margin-left: 5px;
+#find-container>*{
+    margin-right: 5px;
 }
 
-.wrong-value{
-    color: red;
+
+#datatable{
+    width: 100%;
+}
+
+.nameContainer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.name{
+    width: 20%;
+}
+
+.phone{
+    width: 15%;
+}
+
+.daysLeft{
+    text-align: center;
+    width: 5%;
 }
 
 .expired{
     background-color: pink;
 }
 
-#groups-container>*{
-    margin-right: 5px;
+.hidden{
+    visibility: hidden;
 }
 
-#groups input{
-    margin-right: 3px;
-    margin-top: 3px;
+/*EDIT*/
+
+#fields-table input, #fields-table textarea {
+    width: 20em;
 }
 
-/*CREATE EDIT*/
-#password-wrapper{
+#password-header{
+    font-size: larger;
+}
+
+#password-wrapper>div{
+    padding-top: 10px;
+}
+
+#password-container{
     display: flex;
-    flex-direction: column;
-    padding: 5px;
-}
-
-#password-wrapper>*{
-    display: flex;
-    margin-top: 10px;
     align-items: center;
 }
 
-#password-type-container>*{
-    margin-right: 5px;
-}
-
-#password-container button{
+#generate-password{
     margin-left: 5px;
 }
 
-#password-length-container>*{
-    margin-right: 10px;
-}
-
-#generate-password{
-    margin-left: 10px;
-}
-
-#password-validity-container{
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-#password-validity-container>div{
-    margin-right: 5px;
-    margin-top: 5px;
-}
-
-input[type="number"]{
-    width: 3em;
-}
-
-#submit-container{
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 3px;
-    margin-top: 5px;
+#button_save{
+    margin-top: 10px;
+    font-size: large;
 }

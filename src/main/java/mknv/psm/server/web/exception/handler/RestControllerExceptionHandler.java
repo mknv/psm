@@ -11,12 +11,12 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import mknv.psm.server.web.exception.ControllerSecurityException;
 import mknv.psm.server.web.exception.EntityNotFoundException;
 import mknv.psm.server.web.exception.ErrorInfo;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
@@ -33,14 +33,20 @@ public class RestControllerExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(value = {
-        MethodArgumentTypeMismatchException.class,
         HttpRequestMethodNotSupportedException.class,
         MissingServletRequestParameterException.class,
-        EntityNotFoundException.class
-    })
-    public ErrorInfo handleBadRequest(Exception ex, HttpServletRequest request) {
+        EntityNotFoundException.class})
+    public ErrorInfo handleNotFound(Exception ex, HttpServletRequest request) {
         log.info("URL: {}. {}", request.getRequestURL(), ex);
         String message = messageSource.getMessage("error.page.not.found", null, null);
+        ErrorInfo errorInfo = new ErrorInfo(message);
+        return errorInfo;
+    }
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ErrorInfo handleBadRequest(Exception ex, HttpServletRequest request){
+        log.info("URL: {}. {}", request.getRequestURL(), ex);
+        String message = messageSource.getMessage("error.bad.request", null, null);
         ErrorInfo errorInfo = new ErrorInfo(message);
         return errorInfo;
     }
