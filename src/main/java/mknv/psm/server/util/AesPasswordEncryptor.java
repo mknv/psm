@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * @author Mikhail Konovalov
+ * @author mknv
  */
 @Component
 @ConfigurationProperties(prefix = "password.encryptor")

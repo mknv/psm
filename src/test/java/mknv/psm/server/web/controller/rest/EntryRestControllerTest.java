@@ -1,8 +1,6 @@
 package mknv.psm.server.web.controller.rest;
 
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -14,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -27,6 +23,7 @@ import mknv.psm.server.model.domain.User;
 import mknv.psm.server.model.repository.EntryRepository;
 import mknv.psm.server.model.repository.GroupRepository;
 import mknv.psm.server.model.repository.UserRepository;
+import mknv.psm.server.model.service.EntryService;
 import mknv.psm.server.util.PasswordEncryptor;
 import mknv.psm.server.util.PasswordGenerator;
 import mknv.psm.server.util.PasswordType;
@@ -50,313 +47,264 @@ public class EntryRestControllerTest {
     @MockBean
     private EntryRepository entryRepository;
     @MockBean
+    private EntryService entryService;
+    @MockBean
     private PasswordGenerator passwordGenerator;
-    @Autowired
+    @MockBean
     private PasswordEncryptor passwordEncryptor;
 
     @Test
-    public void findAll_OK() throws Exception {
-        System.out.println("findAll_OK");
-        User admin = new User(1, "admin", "password");
-        User user = new User(2, "user", "password");
+    @WithMockUser(username = "user", authorities = "user")
+    public void findAllEntries_OK() throws Exception {
+        User user = new User(1, "user", "password");
+        Entry entry = new Entry("entry", user);
 
-        Group adminGroup = new Group(1, "adminGroup", admin);
-        Group userGroup = new Group(2, "userGroup", user);
-
-        Entry adminEntry = new Entry(1, "adminEntry", null, null, null, null, null, adminGroup, admin);
-        Entry userEntry1 = new Entry(2, "userEntry1", "login1", "email1", "password1", "description1", LocalDate.of(2018, 1, 1), userGroup, user);
-        Entry userEntry2 = new Entry(3, "userEntry2", "login2", "email2", "password2", "description2", LocalDate.of(2018, 2, 2), userGroup, user);
-
-        given(userRepository.findByName("admin")).willReturn(admin);
         given(userRepository.findByName("user")).willReturn(user);
+        given(entryService.find(user, "entry", null, false)).willReturn(List.of(entry));
 
-        given(entryRepository.find(admin)).willReturn(Arrays.asList(adminEntry));
-        given(entryRepository.find(user)).willReturn(Arrays.asList(userEntry1, userEntry2));
-        given(entryRepository.find("", user)).willReturn(Arrays.asList(userEntry1, userEntry2));
-        given(entryRepository.find("USER", user)).willReturn(Arrays.asList(userEntry1, userEntry2));
-        given(entryRepository.find("1", user)).willReturn(Arrays.asList(userEntry1));
-        given(entryRepository.find("2", user)).willReturn(Arrays.asList(userEntry2));
-        given(entryRepository.find("WRONG", user)).willReturn(Collections.emptyList());
-
-        //Returns a list of entries selected by current user. If a name parameter is present then
-        //returns entries by user only else returns entries selected by user and name that contains case
-        //insensitive string value from the name parameter
-        //Should return only adminEntry. Without name parameter by user 'admin'.
         mockMvc.perform(get("/rest/entries").secure(true)
-                .with(user("admin").authorities(new SimpleGrantedAuthority("admin"))))
+                .param("name", "entry")
+                .param("group", "all"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].name", is("adminEntry")))
-                .andExpect(jsonPath("$[0].login", nullValue()))
-                .andExpect(jsonPath("$[0].email", nullValue()))
-                .andExpect(jsonPath("$[0].password", nullValue()))
-                .andExpect(jsonPath("$[0].description", nullValue()))
-                .andExpect(jsonPath("$[0].expiredDate", nullValue()))
-                .andExpect(jsonPath("$[0].group").doesNotExist())
+                .andExpect(jsonPath("$[0].name", is("entry")))
                 .andExpect(jsonPath("$[0].user").doesNotExist());
 
-        //Should return only userEntry1. Without name parameter by user 'user'.
+        then(entryService).should(times(1)).find(user, "entry", null, false);
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = "user")
+    public void findEntries_WithEmptyGroup_OK() throws Exception {
+        User user = new User(1, "user", "password");
+        Entry entry = new Entry("entry", user);
+
+        given(userRepository.findByName("user")).willReturn(user);
+        given(entryService.find(user, "entry", null, true)).willReturn(List.of(entry));
+
         mockMvc.perform(get("/rest/entries").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
+                .param("name", "entry")
+                .param("group", "empty"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(2)))
-                .andExpect(jsonPath("$[0].name", is("userEntry1")))
-                .andExpect(jsonPath("$[0].login", is("login1")))
-                .andExpect(jsonPath("$[0].email", is("email1")))
-                .andExpect(jsonPath("$[0].password", is("password1")))
-                .andExpect(jsonPath("$[0].description", is("description1")))
-                .andExpect(jsonPath("$[0].expiredDate", is("2018-01-01")))
-                .andExpect(jsonPath("$[0].group").doesNotExist())
-                .andExpect(jsonPath("$[0].user").doesNotExist())
-                .andExpect(jsonPath("$[1].id", is(3)))
-                .andExpect(jsonPath("$[1].name", is("userEntry2")))
-                .andExpect(jsonPath("$[1].login", is("login2")))
-                .andExpect(jsonPath("$[1].email", is("email2")))
-                .andExpect(jsonPath("$[1].password", is("password2")))
-                .andExpect(jsonPath("$[1].description", is("description2")))
-                .andExpect(jsonPath("$[1].expiredDate", is("2018-02-02")))
-                .andExpect(jsonPath("$[1].group").doesNotExist())
-                .andExpect(jsonPath("$[1].user").doesNotExist());
-
-        //Should return both entries. The name parameter is empty by user 'user'.
-        mockMvc.perform(get("/rest/entries").param("name", "").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(2)))
-                .andExpect(jsonPath("$[0].name", is("userEntry1")))
-                .andExpect(jsonPath("$[0].login", is("login1")))
-                .andExpect(jsonPath("$[0].email", is("email1")))
-                .andExpect(jsonPath("$[0].password", is("password1")))
-                .andExpect(jsonPath("$[0].description", is("description1")))
-                .andExpect(jsonPath("$[0].expiredDate", is("2018-01-01")))
-                .andExpect(jsonPath("$[0].group").doesNotExist())
-                .andExpect(jsonPath("$[0].user").doesNotExist())
-                .andExpect(jsonPath("$[1].id", is(3)))
-                .andExpect(jsonPath("$[1].name", is("userEntry2")))
-                .andExpect(jsonPath("$[1].login", is("login2")))
-                .andExpect(jsonPath("$[1].email", is("email2")))
-                .andExpect(jsonPath("$[1].password", is("password2")))
-                .andExpect(jsonPath("$[1].description", is("description2")))
-                .andExpect(jsonPath("$[1].expiredDate", is("2018-02-02")))
-                .andExpect(jsonPath("$[1].group").doesNotExist())
-                .andExpect(jsonPath("$[1].user").doesNotExist());
-
-        //Should return both entries. The name parameter is 'USER' by user 'user'.
-        mockMvc.perform(get("/rest/entries").param("name", "USER").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(2)))
-                .andExpect(jsonPath("$[0].name", is("userEntry1")))
-                .andExpect(jsonPath("$[0].login", is("login1")))
-                .andExpect(jsonPath("$[0].email", is("email1")))
-                .andExpect(jsonPath("$[0].password", is("password1")))
-                .andExpect(jsonPath("$[0].description", is("description1")))
-                .andExpect(jsonPath("$[0].expiredDate", is("2018-01-01")))
-                .andExpect(jsonPath("$[0].group").doesNotExist())
-                .andExpect(jsonPath("$[0].user").doesNotExist())
-                .andExpect(jsonPath("$[1].id", is(3)))
-                .andExpect(jsonPath("$[1].name", is("userEntry2")))
-                .andExpect(jsonPath("$[1].login", is("login2")))
-                .andExpect(jsonPath("$[1].email", is("email2")))
-                .andExpect(jsonPath("$[1].password", is("password2")))
-                .andExpect(jsonPath("$[1].description", is("description2")))
-                .andExpect(jsonPath("$[1].expiredDate", is("2018-02-02")))
-                .andExpect(jsonPath("$[1].group").doesNotExist())
-                .andExpect(jsonPath("$[1].user").doesNotExist());
-
-        //Should return only userEntry1. The name parameter is '1' by user 'user'.
-        mockMvc.perform(get("/rest/entries").param("name", "1").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(2)))
-                .andExpect(jsonPath("$[0].name", is("userEntry1")))
-                .andExpect(jsonPath("$[0].login", is("login1")))
-                .andExpect(jsonPath("$[0].email", is("email1")))
-                .andExpect(jsonPath("$[0].password", is("password1")))
-                .andExpect(jsonPath("$[0].description", is("description1")))
-                .andExpect(jsonPath("$[0].expiredDate", is("2018-01-01")))
-                .andExpect(jsonPath("$[0].group").doesNotExist())
+                .andExpect(jsonPath("$[0].name", is("entry")))
                 .andExpect(jsonPath("$[0].user").doesNotExist());
 
-        //Should return only userEntry2. The name parameter is '2' by user 'user'.
-        mockMvc.perform(get("/rest/entries").param("name", "2").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(3)))
-                .andExpect(jsonPath("$[0].name", is("userEntry2")))
-                .andExpect(jsonPath("$[0].login", is("login2")))
-                .andExpect(jsonPath("$[0].email", is("email2")))
-                .andExpect(jsonPath("$[0].password", is("password2")))
-                .andExpect(jsonPath("$[0].description", is("description2")))
-                .andExpect(jsonPath("$[0].expiredDate", is("2018-02-02")))
-                .andExpect(jsonPath("$[0].group").doesNotExist())
-                .andExpect(jsonPath("$[0].user").doesNotExist());
-
-        //Should return an empty list. The name parameter is 'WRONG' by user 'user'.
-        mockMvc.perform(get("/rest/entries").param("name", "WRONG").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$", hasSize(0)));
+        then(entryService).should(times(1)).find(user, "entry", null, true);
     }
 
     @Test
-    public void findByGroup_OK() throws Exception {
-        System.out.println("findByGroup_OK");
-        User admin = new User(1, "admin", "password");
-        User user = new User(2, "user", "password");
+    @WithMockUser(username = "user", authorities = "user")
+    public void findEntries_ByGroup_OK() throws Exception {
+        User user = new User(1, "user", "password");
+        Group group = new Group(1, "group", user);
+        Entry entry = new Entry("entry", user);
 
-        Group adminGroup = new Group(1, "adminGroup", admin);
-        Group userGroup = new Group(2, "userGroup", user);
+        given(userRepository.findByName("user")).willReturn(user);
+        given(groupRepository.findByIdFetchUser(1)).willReturn(group);
+        given(entryService.find(user, "entry", group, false)).willReturn(List.of(entry));
 
-        Entry adminEntry = new Entry(1, "adminEntry", null, null, null, null, null, adminGroup, admin);
-        Entry userEntry1 = new Entry(2, "userEntry1", "login1", "email1", "password1", "description1", LocalDate.of(2018, 1, 1), userGroup, user);
-
-        given(groupRepository.findByIdFetchUser(1)).willReturn(adminGroup);
-        given(groupRepository.findByIdFetchUser(2)).willReturn(userGroup);
-
-        given(entryRepository.find(adminGroup)).willReturn(Arrays.asList(adminEntry));
-        given(entryRepository.find(userGroup)).willReturn(Arrays.asList(userEntry1));
-
-        //Should return the adminEntry by the adminGroup
-        mockMvc.perform(get("/rest/entries/group/1").secure(true)
-                .with(user("admin").authorities(new SimpleGrantedAuthority("admin"))))
+        mockMvc.perform(get("/rest/entries").secure(true)
+                .param("name", "entry")
+                .param("group", "1"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].name", is("adminEntry")))
-                .andExpect(jsonPath("$[0].login", nullValue()))
-                .andExpect(jsonPath("$[0].email", nullValue()))
-                .andExpect(jsonPath("$[0].password", nullValue()))
-                .andExpect(jsonPath("$[0].description", nullValue()))
-                .andExpect(jsonPath("$[0].expiredDate", nullValue()))
-                .andExpect(jsonPath("$[0].group").doesNotExist())
+                .andExpect(jsonPath("$[0].name", is("entry")))
                 .andExpect(jsonPath("$[0].user").doesNotExist());
 
-        //Should return both entries by the userGroup
-        mockMvc.perform(get("/rest/entries/group/2").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(2)))
-                .andExpect(jsonPath("$[0].name", is("userEntry1")))
-                .andExpect(jsonPath("$[0].login", is("login1")))
-                .andExpect(jsonPath("$[0].email", is("email1")))
-                .andExpect(jsonPath("$[0].password", is("password1")))
-                .andExpect(jsonPath("$[0].description", is("description1")))
-                .andExpect(jsonPath("$[0].expiredDate", is("2018-01-01")))
-                .andExpect(jsonPath("$[0].group").doesNotExist())
-                .andExpect(jsonPath("$[0].user").doesNotExist());
-
-        //Should return not found status when a group does not exist
-        mockMvc.perform(get("/rest/entries/group/3").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isNotFound());
-
-        //Should return forbidden status when a group belongs to another user
-        mockMvc.perform(get("/rest/entries/group/2").secure(true)
-                .with(user("admin").authorities(new SimpleGrantedAuthority("admin"))))
-                .andExpect(status().isForbidden());
+        then(entryService).should(times(1)).find(user, "entry", group, false);
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"user"})
-    public void generatePassword_OK() throws Exception {
-        System.out.println("generatePassword_OK");
-        given(passwordGenerator.generate(10, PasswordType.SIMPLE)).willReturn("simplepass");
-        given(passwordGenerator.generate(11, PasswordType.COMPLEX)).willReturn("complexpass");
+    @WithMockUser(username = "user", authorities = "user")
+    public void findByGroup_When_GroupId_IsNotInteger() throws Exception {
+        User user = new User(1, "user", "password");
+        Group group = new Group(1, "group", user);
 
-        //Should return a password of type simple with length 10
-        mockMvc.perform(get("/rest/entries/generate-password")
-                .param("length", "10").param("type", "simple").secure(true))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.password", is("simplepass")));
+        given(userRepository.findByName("user")).willReturn(user);
+        given(groupRepository.findByIdFetchUser(1)).willReturn(null);
 
-        //Should return a password of type complex with length 11
-        mockMvc.perform(get("/rest/entries/generate-password")
-                .param("length", "11").param("type", "complex").secure(true))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.password", is("complexpass")));
+        mockMvc.perform(get("/rest/entries").secure(true)
+                .param("name", "entry")
+                .param("group", "wrong"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").exists());
+
+        then(entryService).should(times(0)).find(user, "entry", group, false);
     }
 
     @Test
-    public void getPassword_OK() throws Exception {
-        System.out.println("getPassword_OK");
-        User admin = new User(1, "admin", "password");
-        User user = new User(2, "user", "password");
+    @WithMockUser(username = "user", authorities = "user")
+    public void findEntries_When_GroupNotFound() throws Exception {
+        User user = new User(1, "user", "password");
+        Group group = new Group(1, "group", user);
 
-        Group adminGroup = new Group(1, "adminGroup", admin);
-        Group userGroup = new Group(2, "userGroup", user);
+        given(userRepository.findByName("user")).willReturn(user);
+        given(groupRepository.findByIdFetchUser(1)).willReturn(null);
 
-        Entry adminEntry = new Entry(1, "adminEntry", null, null, null, null, null, adminGroup, admin);
-        Entry userEntry1 = new Entry(2, "userEntry1", "login1", "email1",
-                passwordEncryptor.encrypt("password1"), "description1", LocalDate.of(2018, 1, 1), userGroup, user);
+        mockMvc.perform(get("/rest/entries").secure(true)
+                .param("name", "entry")
+                .param("group", "1"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").exists());
 
-        given(entryRepository.findByIdFetchAll(1)).willReturn(adminEntry);
-        given(entryRepository.findByIdFetchAll(2)).willReturn(userEntry1);
-
-        //Should return userEntry1's password
-        mockMvc.perform(get("/rest/entries/getpassword/2").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.password", is("password1")));
-
-        //Should return not found status when an entry is not exist
-        mockMvc.perform(get("/rest/entries/getpassword/89").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isNotFound());
-
-        //Should return forbidden status when attempts to get password from the entry that
-        //belongs to another user
-        mockMvc.perform(get("/rest/entries/getpassword/1").secure(true)
-                .with(user("user").authorities(new SimpleGrantedAuthority("user"))))
-                .andExpect(status().isForbidden());
+        then(entryService).should(times(0)).find(user, "entry", group, false);
     }
 
     @Test
-    public void delete_OK() throws Exception {
-        System.out.println("delete_OK");
-        User admin = new User(1, "admin", "password");
-        User user = new User(2, "user", "password");
+    @WithMockUser(username = "user", authorities = "user")
+    public void findEntries_When_GroupBelongsToAnotherUser() throws Exception {
+        User anotherUser = new User(1, "another", "password");
+        Group group = new Group(1, "group", anotherUser);
 
-        Group adminGroup = new Group(1, "adminGroup", admin);
-        Group userGroup = new Group(2, "userGroup", user);
+        given(userRepository.findByName("user")).willReturn(anotherUser);
+        given(groupRepository.findByIdFetchUser(1)).willReturn(group);
 
-        Entry adminEntry = new Entry(1, "adminEntry", null, null, null, null, null, adminGroup, admin);
-        Entry userEntry1 = new Entry(2, "userEntry1", "login1", "email1",
-                "password1", "description1", LocalDate.of(2018, 1, 1), userGroup, user);
+        mockMvc.perform(get("/rest/entries").secure(true)
+                .param("name", "entry")
+                .param("group", "1"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").exists());
 
-        given(entryRepository.findByIdFetchAll(1)).willReturn(adminEntry);
-        given(entryRepository.findByIdFetchAll(2)).willReturn(userEntry1);
+        then(entryService).should(times(0)).find(anotherUser, "entry", group, false);
+    }
 
-        //Should delete the entry succesfully
-        mockMvc.perform(post("/rest/entries/delete/1").secure(true).with(csrf())
-                .with(user("admin").authorities(new SimpleGrantedAuthority("admin"))))
+    @Test
+    @WithMockUser(username = "user", authorities = "user")
+    public void deleteEntry_OK() throws Exception {
+        User user = new User(1, "user", "password");
+        Entry existingEntry = new Entry("existing", user);
+        existingEntry.setId(1);
+
+        given(entryRepository.findByIdFetchAll(1)).willReturn(existingEntry);
+
+        mockMvc.perform(post("/rest/entries/delete/{id}", 1).secure(true).with(csrf()))
                 .andExpect(status().isOk());
 
-        //Should return not found status when attempts to delete the non existent entry
-        mockMvc.perform(post("/rest/entries/delete/3").secure(true).with(csrf())
-                .with(user("admin").password("password").authorities(new SimpleGrantedAuthority("admin"))))
-                .andExpect(status().isNotFound());
+        then(entryRepository).should(times(1)).delete(existingEntry);
+    }
 
-        //Should return forbidden status when the entry belongs to another user
-        mockMvc.perform(post("/rest/entries/delete/2").secure(true).with(csrf())
-                .with(user("admin").password("password").authorities(new SimpleGrantedAuthority("admin"))))
-                .andExpect(status().isForbidden());
+    @Test
+    @WithMockUser(username = "user", authorities = "user")
+    public void delete_When_EntryNotFound() throws Exception {
+        User user = new User(1, "user", "password");
+        Entry existingEntry = new Entry("existing", user);
+        existingEntry.setId(1);
+
+        given(entryRepository.findByIdFetchAll(1)).willReturn(null);
+
+        mockMvc.perform(post("/rest/entries/delete/{id}", 1).secure(true).with(csrf()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").exists());
+
+        then(entryRepository).should(times(0)).delete(existingEntry);
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = "user")
+    public void delete_When_EntryBelongsToAnotherUser() throws Exception {
+        User anotherUser = new User(1, "another", "password");
+        Entry existingEntry = new Entry("existing", anotherUser);
+        existingEntry.setId(1);
+
+        given(entryRepository.findByIdFetchAll(1)).willReturn(existingEntry);
+
+        mockMvc.perform(post("/rest/entries/delete/{id}", 1).secure(true).with(csrf()))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").exists());
+
+        then(entryRepository).should(times(0)).delete(existingEntry);
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = "user")
+    public void generatePassword_OK() throws Exception {
+        given(passwordGenerator.generate(5, PasswordType.SIMPLE)).willReturn("abcde");
+        given(passwordGenerator.generate(6, PasswordType.COMPLEX)).willReturn("abcdef");
+
+        //Should return a simple password with length 5 characters
+        mockMvc.perform(get("/rest/entries/generate-password")
+                .param("length", "5")
+                .param("type", "simple").secure(true))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.password", is("abcde")));
+
+        then(passwordGenerator).should(times(1)).generate(5, PasswordType.SIMPLE);
+
+        //Should return a complex password with length 10 characters
+        mockMvc.perform(get("/rest/entries/generate-password")
+                .param("length", "6")
+                .param("type", "complex").secure(true))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.password", is("abcdef")));
+
+        then(passwordGenerator).should(times(1)).generate(6, PasswordType.COMPLEX);
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = "user")
+    public void generatePassword_When_Length_IsNotInteger() throws Exception {
+        mockMvc.perform(get("/rest/entries/generate-password")
+                .param("length", "wrong")
+                .param("type", "simple").secure(true))
+                .andExpect(status().isBadRequest());
+
+        then(passwordGenerator).shouldHaveNoInteractions();
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = "user")
+    public void getPassword_OK() throws Exception {
+        User user = new User(1, "user", "encrypted");
+        Entry existingEntry = new Entry("existing", user);
+        existingEntry.setId(1);
+        existingEntry.setPassword("encrypted");
+
+        given(entryRepository.findByIdFetchAll(1)).willReturn(existingEntry);
+        given(passwordEncryptor.decrypt("encrypted")).willReturn("password");
+
+        mockMvc.perform(get("/rest/entries/getpassword/{id}", 1).secure(true))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.password", is("password")));
+
+        then(passwordEncryptor).should(times(1)).decrypt("encrypted");
+
+        //The entry has an empty password. Should return an empty string
+        existingEntry.setPassword(null);
+
+        mockMvc.perform(get("/rest/entries/getpassword/{id}", 1).secure(true))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.password", is("")));
+
+        then(passwordEncryptor).should(times(1)).decrypt("encrypted");
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = "user")
+    public void getPassword_When_EntryNotFound() throws Exception {
+        given(entryRepository.findByIdFetchAll(1)).willReturn(null);
+
+        mockMvc.perform(get("/rest/entries/getpassword/{id}", 1).secure(true))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").exists());
+
+        then(passwordEncryptor).shouldHaveNoInteractions();
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = "user")
+    public void getPassword_When_EntryBelongsToAnotherUser() throws Exception {
+        User anotherUser = new User(1, "another", "password");
+        Entry existingEntry = new Entry("existing", anotherUser);
+        existingEntry.setId(1);
+
+        given(entryRepository.findByIdFetchAll(1)).willReturn(existingEntry);
+
+        mockMvc.perform(get("/rest/entries/getpassword/{id}", 1).secure(true))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").exists());
+
+        then(passwordEncryptor).shouldHaveNoInteractions();
     }
 
 }

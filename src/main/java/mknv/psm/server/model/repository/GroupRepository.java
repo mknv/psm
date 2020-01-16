@@ -16,16 +16,16 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     /**
      * Retrieves a list of groups by user. Sorts the result by name.
      *
-     * @param user user parameter
+     * @param user a user
      * @return a list of groups
      */
     @Query("select g from Group g where g.user = :user order by g.name")
     List<Group> findByUser(@Param("user") User user);
 
     /**
-     * Retrieves a group by id with related user.
+     * Retrieves a group by id. Fetches user eagerly.
      *
-     * @param id group id parameter
+     * @param id a group id
      * @return a group or null if no groups found
      */
     @Query("select g from Group g join fetch g.user where g.id = :id")

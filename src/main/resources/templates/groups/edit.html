@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{fragments/layout}">
     <head>
-        <title th:text="#{group.edit}"></title>
+        <title th:text="#{group.save}"></title>
     </head>
     <body>
         <div layout:fragment="content">
-            <div class="header" th:text="#{group.edit}" />
-            <form th:action="@{/groups/update}" th:object="${group}" method="post">
+            <div class="header" th:text="#{group.save}" />
+            <form th:action="@{/groups/save}" th:object="${group}" method="post">
                 <input type="hidden" th:field="*{id}" />
                 <table>
                     <tr>

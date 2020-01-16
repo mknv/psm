@@ -1,9 +1,22 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{fragments/layout}">
     <head>
         <title th:text="#{user.edit}"></title>
         <link rel="stylesheet" th:href="@{/css/users.css}"/>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#password").attr("disabled", "disabled");
+            });
+
+            function changePasswordClick() {
+                if ($("#change-password").is(":checked")) {
+                    $("#password").removeAttr("disabled");
+                } else {
+                    $("#password").attr("disabled", "disabled");
+                }
+            }
+        </script>
     </head>
     <body>
         <div layout:fragment="content">
@@ -13,19 +26,23 @@
                 <table>
                     <tr>
                         <td th:text="#{user.name}"></td>
+                        <td></td>
                         <td><input type="text" th:field="*{name}" autofocus="autofocus"/></td>
                     </tr>
                     <tr><td colspan="3" class="error" th:errors="*{name}"></td></tr>
                     <tr>
-                        <td th:text="#{user.password}"></td>
-                        <td><input type="password" th:field="*{password}"/></td>
+                        <td th:text="#{user.change.password}"></td>
+                        <td>
+                            <input type="checkbox" id="change-password" name="change-password" onclick="changePasswordClick();" />
+                        </td>
+                        <td><input type="password" id="password" th:field="*{password}"/></td>
                     </tr>
                     <tr><td colspan="3" class="error" th:errors="*{password}"></td></tr>
                     <tr>
                         <td th:text="#{user.roles}"></td>
+                        <td></td>
                         <td>
                             <div th:each="role : ${roles}" class="role">
-                                <label th:for="${#ids.next('roles')}" />
                                 <input type="checkbox" th:field="*{roles}" th:text="${role.name}" th:value="${role.id}" />
                             </div>
                         </td>
@@ -33,9 +50,7 @@
                     <tr><td colspan="3" class="error" th:errors="*{roles}"></td></tr>
                     <tr><td colspan="3" class="error" th:text="${error}"></td></tr>
                     <tr>
-                        <td></td>
-                        <td><input type="submit" th:value="#{save}" /></td>
-                        <td></td>
+                        <td colspan="3"><input type="submit" th:value="#{save}" /></td>
                     </tr>
                 </table>
             </form>

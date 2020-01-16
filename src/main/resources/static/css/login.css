@@ -1,5 +1,4 @@
 form{
-    width: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -13,6 +12,6 @@ form>input{
 
 .error{
     color: red;
-    font-size: medium;
+    font-size: large;
     font-weight: bold;
 }

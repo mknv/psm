@@ -34,12 +34,13 @@ CREATE UNIQUE INDEX groups_unique_idx ON groups (user_id, lower(name));
 
 CREATE TABLE entries (
     id integer NOT NULL,
-    group_id integer NOT NULL,
+    group_id integer,
     user_id integer NOT NULL,
     name character varying(255) NOT NULL,
     login character varying(255),
     password character varying(1000),
     email character varying(255),
+    phone character varying(50),
     description character varying(1000),
     expired_date date,
     CONSTRAINT entries_pk PRIMARY KEY (id)

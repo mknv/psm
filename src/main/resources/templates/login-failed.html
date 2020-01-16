@@ -5,21 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title th:text="#{login.page.title}"></title>
         <link rel="stylesheet" th:href="@{/css/login.css}"/>
-        <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
-        <script type="text/javascript">
-            $(function () {
-                $('#form input[type=submit]').click(function (event) {
-                    event.preventDefault();
-                    var url = '[[@{/rest/csrf}]]';
-                    $.get(url, function (data, textStatus, xhr) {
-                        if (xhr.responseJSON) {
-                            $('#form input[type=hidden]').val(data.token);
-                            $('#form').submit();
-                        }
-                    });
-                });
-            });
-        </script>
     </head>
     <body>
         <form id="form" th:action="@{/login}" method="post">

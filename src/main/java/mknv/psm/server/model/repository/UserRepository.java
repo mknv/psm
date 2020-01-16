@@ -13,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     /**
-     * Retrieves all users with related roles. Sorts the result by name.
+     * Retrieves all users. Fetches roles eagerly. Sorts the result by name.
      *
      * @return a list of users
      */
@@ -21,9 +21,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAllFetchRoles();
 
     /**
-     * Retrieves a user by id with related roles.
+     * Retrieves a user by id. Fetches roles eagerly.
      *
-     * @param id user id parameter
+     * @param id a user id
      * @return a user or null if no users found
      */
     @Query("select distinct u from User u left join fetch u.roles where u.id = :id")
@@ -32,16 +32,16 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     /**
      * Retrieves a user by name.
      *
-     * @param name user name parameter
+     * @param name a user name
      * @return a user or null if no users found
      */
     @Query("select u from User u where u.name = :name")
     User findByName(@Param("name") String name);
 
     /**
-     * Retrieves a user by name with related roles.
+     * Retrieves a user by name. Fetches roles eagerly.
      *
-     * @param name user name parameter
+     * @param name a user name
      * @return a user or null if no users found
      */
     @Query("select distinct u from User u left join fetch u.roles where u.name = :name")

@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
- * @author Mikhail Konovalov
+ * @author mknv
  */
 @RestController
 public class CsrfController {
 
-    @GetMapping(value = "/rest/csrf", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public CsrfToken csrf(CsrfToken csrfToken){
+    @GetMapping(value = "/rest/csrf", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CsrfToken csrf(CsrfToken csrfToken) {
         return csrfToken;
     }
 }

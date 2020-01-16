@@ -1,12 +1,10 @@
 package mknv.psm.server.model.repository;
 
-import mknv.psm.server.model.repository.UserRepository;
-import mknv.psm.server.model.repository.RoleRepository;
 import java.util.List;
-import static org.junit.Assert.*;
-import org.junit.Before;
 import mknv.psm.server.model.domain.Role;
 import mknv.psm.server.model.domain.User;
+import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -33,85 +30,87 @@ public class UserRepositoryTest {
     private RepositoryUtil repositoryUtil;
 
     @Before
-    @Transactional
     public void before() {
         repositoryUtil.clearDatabase();
     }
 
     @Test
-    public void findAllFetchRoles_OK() {
-        System.out.println("findAllFetchRoles_OK");
-        Role role = new Role(1, "role1");
+    public void findAllUsers_FetchRoles_OK() {
+        Role role = new Role(1, "role");
         User user1 = new User("user1", "password");
-        User user2 = new User("user2", "password");
         user1.getRoles().add(role);
+        User user2 = new User("user2", "password");
         user2.getRoles().add(role);
+
         roleRepository.save(role);
         userRepository.save(user1);
         userRepository.save(user2);
 
-        List<User> result = userRepository.findAllFetchRoles();
-        assertEquals(result.size(), 2);
-        assertEquals(result.get(0).getRoles().get(0), role);
-        assertEquals(result.get(1).getRoles().get(0), role);
+        List<User> actual = userRepository.findAllFetchRoles();
+        assertEquals(2, actual.size());
+        assertEquals(1, actual.get(0).getRoles().size());
+        assertEquals(1, actual.get(1).getRoles().size());
     }
 
     @Test
-    public void findByIdFetchRoles_OK() {
-        System.out.println("findByIdFetchRoles_OK");
-        Role role = new Role(1, "role1");
-        User user = new User("user1", "password");
-        user.getRoles().add(role);
-        roleRepository.save(role);
-        userRepository.save(user);
+    public void findById_FetchRoles_OK() {
+        Role role = new Role(1, "role");
+        User expected = new User("expected", "password");
+        expected.getRoles().add(role);
 
-        User result = userRepository.findByIdFetchRoles(user.getId());
-        assertEquals(result, user);
-        assertEquals(result.getRoles().get(0), role);
+        roleRepository.save(role);
+        userRepository.save(expected);
+
+        User actual = userRepository.findByIdFetchRoles(expected.getId());
+        assertEquals(expected, actual);
+        assertEquals(1, actual.getRoles().size());
     }
 
     @Test
     public void findByName_OK() {
-        System.out.println("findByName_OK");
-        Role role = new Role(1, "role1");
-        String username = "user1";
-        User user = new User(username, "password");
-        user.getRoles().add(role);
-        roleRepository.save(role);
-        userRepository.save(user);
+        Role role = new Role(1, "role");
+        User expected = new User("expected", "password");
+        expected.getRoles().add(role);
+        User user1 = new User("user1", "password");
+        user1.getRoles().add(role);
 
-        //Roles are not fetched eagerly
-        User result = userRepository.findByName(username);
-        assertEquals(result, user);
+        roleRepository.save(role);
+        userRepository.save(expected);
+        userRepository.save(user1);
+
+        User actual = userRepository.findByName("expected");
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void findByNameFetchRoles_OK() {
-        System.out.println("findByNameFetchRoles_OK");
-        Role role = new Role(1, "role1");
-        String username = "user1";
-        User user = new User(username, "password");
-        user.getRoles().add(role);
-        roleRepository.save(role);
-        userRepository.save(user);
+    public void findByName_FetchRoles_OK() {
+        Role role = new Role(1, "role");
+        User expected = new User("expected", "password");
+        expected.getRoles().add(role);
+        User user1 = new User("user1", "password");
+        user1.getRoles().add(role);
 
-        User result = userRepository.findByNameFetchRoles(username);
-        assertEquals(result, user);
-        assertEquals(result.getRoles().get(0), role);
+        roleRepository.save(role);
+        userRepository.save(expected);
+        userRepository.save(user1);
+
+        User actual = userRepository.findByNameFetchRoles("expected");
+        assertEquals(expected, actual);
+        assertEquals(1, actual.getRoles().size());
     }
 
     @Test(expected = DataIntegrityViolationException.class)
-    public void saveWithExistingName_Failed() {
-        System.out.println("saveWithExistingName_Failed");
-        Role role = new Role(1, "role1");
+    public void saveUser_With_ExistingName_Failed() {
+        Role role = new Role(1, "role");
         User user1 = new User("user1", "password");
         user1.getRoles().add(role);
+
         roleRepository.save(role);
         userRepository.save(user1);
 
-        //The unique index in DB for the name field is case insensitive
-        User userWithExistingName = new User("uSER1", "password");
-        userWithExistingName.getRoles().add(role);
-        userRepository.save(userWithExistingName);
+        //Attempts to save user with the same name in another case
+        User user2 = new User("uSER1", "password");
+        user2.getRoles().add(role);
+        userRepository.save(user2);
     }
 }
