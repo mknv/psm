@@ -13,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
@@ -38,18 +37,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
         User user = userRepository.findByNameFetchRoles(username);
-        if (user == null) {
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
-            if (!details.getRemoteAddress().equals("0:0:0:0:0:0:0:1")) {
-                log.info("Authentication failed. User: {}. Password: {}. IP: {}", username, password, details.getRemoteAddress());
-            }
-            throw new UsernameNotFoundException("Authentication failed");
-        }
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
-            if (!details.getRemoteAddress().equals("0:0:0:0:0:0:0:1")) {
-                log.info("Authentication failed. User: {}. Password: {}. IP: {}", username, password, details.getRemoteAddress());
-            }
+            log.info("Authentication failed. User: {}. Password: {}. IP: {}", username, password, details.getRemoteAddress());
             throw new BadCredentialsException("Authentication failed");
         }
         List<GrantedAuthority> authorities = new ArrayList<>();

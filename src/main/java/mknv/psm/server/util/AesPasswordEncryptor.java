@@ -41,6 +41,9 @@ public class AesPasswordEncryptor implements PasswordEncryptor {
 
     @Override
     public String decrypt(String encryptedPassword) {
+        if (encryptedPassword == null) {
+            return "";
+        }
         TextEncryptor decryptor = Encryptors.delux(key, salt);
         return decryptor.decrypt(encryptedPassword);
     }
