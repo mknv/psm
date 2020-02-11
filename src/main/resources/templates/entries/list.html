@@ -37,11 +37,11 @@
                 });
             }
 
-            function deleteEntry(entryId) {
-                if (!confirm("[[#{entry.delete.confirm}]]")) {
+            function deleteEntry(id, name) {
+                if (!confirm("[[#{entry.delete.confirm}]]".replace('{0}', name))) {
                     return;
                 }
-                var url = `[[@{/rest/entries/delete/${entryId}}]]`;
+                var url = `[[@{/rest/entries/delete/${id}}]]`;
                 var token = $("meta[name='_csrf']").attr("content");
                 var header = $("meta[name='_csrf_header']").attr("content");
                 $.ajax({url: url,
@@ -74,7 +74,7 @@
                     $row.append('<td>' + (item.description === null ? "" : item.description) + '</td>');
                     $row.append('<td class="daysLeft">' + (item.daysLeft === null ? "" : item.daysLeft) + '</td>');
                     $row.append($('<td class="deleteColumn"></td>')
-                            .append(`<button type="button" class="image-button" style="background-image: url(${deleteImageUrl})" onclick="deleteEntry(${item.id})"/>`));
+                            .append(`<button type="button" class="image-button" style="background-image: url(${deleteImageUrl})" onclick="deleteEntry(${item.id}, '${item.name}')"/>`));
                 });
             }
 
